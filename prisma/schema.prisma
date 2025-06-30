@@ -1,0 +1,62 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProviderType {
+  google
+  manual
+  facebook
+  apple
+  linkedin
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  role         Role
+  password     String
+  provider     ProviderType? // ✅ Use enum instead of String? for type safety
+  active       Boolean       @default(true)
+  blocked      Boolean       @default(false)
+  jobs         Job[]         @relation("UserJobs")
+  applications Application[]
+  createdAt    DateTime      @default(now())
+}
+
+
+model Job {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  postedBy     User          @relation("UserJobs", fields: [postedById], references: [id])
+  postedById   String
+  applications Application[]
+  createdAt    DateTime      @default(now())
+
+  @@index([title])
+}
+
+model Application {
+  id        String   @id @default(uuid())
+  job       Job      @relation(fields: [jobId], references: [id])
+  jobId     String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([jobId])
+  @@index([userId])
+}
+
+enum Role {
+  ADMIN
+  CANDIDATE
+}
