@@ -1,0 +1,535 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Job Board API",
+    "description": "API documentation for the Job Board application",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8000",
+  "basePath": "/api",
+  "schemes": ["http"],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Type: `Bearer <your-token>`"
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Login a user",
+        "description": "Authenticate user with email and password",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User login credentials",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "rahul75@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "secret123"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Login successful"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized"
+                },
+                "data": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Register a new user",
+        "description": "Create a new user with name, email, password, and optional role",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User registration data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["name", "email", "password"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Rahul pal"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "rahul75@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "secret123"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["ADMIN", "CANDIDATE"],
+                  "example": "CANDIDATE"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User created"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "a91109ca-01bc-4872-85e1-2e5cbda6257c"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Rahul pal"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "rahul75@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "$2b$10$KF9HSEg4YAf8gvFOPoChHuNWt0Ms5tYxbI10AzN2wrqw/O.GHeAHC"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "CANDIDATE"
+                    },
+                    "provider": {
+                      "type": ["string", "null"],
+                      "example": null
+                    },
+                    "active": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "blocked": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-07-01T05:25:19.824Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User creation failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User creation failed"
+                },
+                "data": {
+                  "type": "object",
+                  "example": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/applications": {
+      "get": {
+        "summary": "Get all job applications",
+        "description": "Fetches all job applications with associated user and job details.",
+        "tags": ["Applications"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Successful response with applications list",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "All applications (from DB)"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "jobId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "user": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "role": {
+                            "type": "string",
+                            "example": "CANDIDATE"
+                          },
+                          "password": {
+                            "type": "string"
+                          },
+                          "provider": {
+                            "type": ["string", "null"]
+                          },
+                          "active": {
+                            "type": "boolean"
+                          },
+                          "blocked": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      },
+                      "job": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "postedById": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Too many requests, please try again after 15 minutes."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "post": {
+        "tags": ["Jobs"],
+        "summary": "Create a new job",
+        "description": "Creates a new job post. Requires Bearer token authorization.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Job details",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["title", "description", "postedById"],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "example": "Video Editor"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "Photos for weddings, party, functions, etc"
+                },
+                "postedById": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "bebecdb3-8d9f-4d4e-bf3a-1b76fc4871f2"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Job created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Job created successfully"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "postedById": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or expired token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Invalid or expired token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/search": {
+      "get": {
+        "tags": ["Jobs"],
+        "summary": "Search jobs by title",
+        "description": "Returns a list of jobs matching the given title. Requires Bearer token authentication.",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "title",
+            "required": true,
+            "type": "string",
+            "description": "The job title to search for",
+            "example": "developer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs fetched",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Jobs fetched" },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "format": "uuid" },
+                      "title": { "type": "string" },
+                      "description": { "type": "string" },
+                      "postedById": { "type": "string", "format": "uuid" },
+                      "createdAt": { "type": "string", "format": "date-time" },
+                      "postedBy": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "email": { "type": "string", "format": "email" },
+                          "name": { "type": "string" },
+                          "role": { "type": "string", "example": "ADMIN" },
+                          "password": { "type": "string" },
+                          "provider": { "type": ["string", "null"] },
+                          "active": { "type": "boolean" },
+                          "blocked": { "type": "boolean" },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      },
+                      "applications": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string", "format": "uuid" },
+                            "jobId": { "type": "string", "format": "uuid" },
+                            "userId": { "type": "string", "format": "uuid" },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or expired token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Invalid or expired token"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

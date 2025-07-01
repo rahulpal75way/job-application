@@ -3,6 +3,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
 import http from "http";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
 
 // Load config early
 import { loadConfig } from "./src/common/helper/config.helper";
@@ -21,12 +24,17 @@ import { type IUser } from "./src/user/user.dto";
 
 declare global {
   namespace Express {
-    interface User extends Omit<IUser, "password"> {}
+    interface User {
+      id: string;
+      role: "ADMIN" | "CANDIDATE";
+    }
+
     interface Request {
       user?: User;
     }
   }
 }
+
 
 // Setup Express
 const port = Number(process.env.PORT) || 5000;
@@ -38,6 +46,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json()); // Redundant but fine
 app.use(morgan("dev"));
+
+// // ✅ Updated path to match your file
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "./docs/swagger-output.json"), "utf8")
+);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // App bootstrap
 const initApp = async (): Promise<void> => {

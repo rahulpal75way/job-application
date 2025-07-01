@@ -11,7 +11,7 @@ router.post("/login", (req, res, next) => {
     if (err || !user) {
       return res
         .status(401)
-        .json(createResponse(false, info?.message || "Unauthorized"));
+        .json(createResponse(false, info?.message || "Unauthorized..."));
     }
 
     // Generate tokens

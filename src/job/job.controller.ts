@@ -44,6 +44,33 @@ export const handleGetJobById: RequestHandler = async (req, res) => {
   }
 };
 
+/**
+ * @function getJobs
+ * @description Handles GET requests to fetch jobs by title. 
+ *              Caches results using Redis and responds with cached data if available.
+ *
+ * @param {Request} req - Express request object. Expects a query parameter `title` (string).
+ * @param {Response} res - Express response object used to send back the result.
+ *
+ * @returns {Promise<void>} - Responds with a JSON object containing job data or an error message.
+ *
+ * @example
+ * // Example request
+ * GET /jobs?title=developer
+ *
+ * // Example successful response
+ * {
+ *   "success": true,
+ *   "message": "Jobs fetched",
+ *   "data": [ ...jobList ]
+ * }
+ *
+ * // Example error response
+ * {
+ *   "success": false,
+ *   "message": "Title query parameter is required"
+ * }
+ */
 export const getJobs = async (req: Request, res: Response) => {
   try {
     const title = req.query.title as string | undefined;

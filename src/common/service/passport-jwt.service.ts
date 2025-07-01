@@ -93,7 +93,13 @@ export const createUserTokens = (user: Omit<IUser, "password">) => {
   const jwtSecret = process.env.JWT_SECRET as string;
   if (!jwtSecret) throw new Error("JWT_SECRET not defined");
 
-  const payload = { ...user };
+  const payload = {
+    userId: user.id, // <- Make sure this is included
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    active: user.active,
+  };
 
   const accessToken = jwt.sign(payload, jwtSecret, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY ?? "30m",
